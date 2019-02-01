@@ -19,11 +19,12 @@ const routes = [
             if (req.queryString["hub.verify_token"] === token) {
                 // Mensaje de exito y envio del token requerido
                 console.log("webhook verificado!");
-                res.status(200).send(req.queryString["hub.challenge"]);
+                res.status(200);
+                res.write(req.queryString["hub.challenge"])
             } else {
                 // Mensaje de fallo
                 console.error("La verificacion ha fallado, porque los tokens no coinciden");
-                res.sendStatus(403);
+                res.send(403,{});
             }
         }
     },
@@ -41,7 +42,7 @@ const routes = [
                         }
                     });
                 });
-                res.sendStatus(200);
+                res.send(200,{});
             }
         }
     }
