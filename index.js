@@ -2,7 +2,8 @@ const Semplice = require('semplice');
 const request = require("request");
 const server = new Semplice();
 
-const token = 'EAAgRJjZBRJdsBAEBF79ZBFFR7yoZBwPvUCpcSWKui2tY8EtFVZCwQHzZCZAiwtHbNr3z4iuTBFaR0uqZCobqKJqoS0YNxS0bQfqMZAYjJd4csHXocg8ZCOuRBpAbyNUaiEMKli0GlDrV4lJaDHXpAOfxIjoZCLqeCjQ0rdDOKvCQ5HSm3hTzRfCae0';
+const token = 'EAAgRJjZBRJdsBAEMTtsCDZB4lbWwD9uReYJvWykoRFrBZAygOcKIFaII24AZBxBcZBayTWh5279EaE5CyXiKTt7VFLDf119wcXqayrWc0ZBeSFyrLPCKZAehuciZBIALLxsg668eRmT5RqChsdEgSot3ePVBZCDfiZCxP18Du17XEYMlS53BFgEZBM7';
+const tkn = '123456';
 
 const routes = [
     {
@@ -15,43 +16,35 @@ const routes = [
     {
         path:'/webhook',
         method:'GET',
-        controller: function(req,res,utils){
-            if (req.queryString["hub.verify_token"] === token) {
-                // Mensaje de exito y envio del token requerido
-                console.log("webhook verificado!");
-                res.status(200);
-                res.write(req.queryString["hub.challenge"])
-            } else {
-                // Mensaje de fallo
-                console.error("La verificacion ha fallado, porque los tokens no coinciden");
-                res.send(403,{});
-            }
+        controller: function(req,res,utils){    
+            validFacebook(req,res,tkn,function(){
+                console.log('okidoki')
+            })
         }
     },
-    {
-        path:'/webhook',
-        method:'POST',
-        controller: function(req,res,utils){
-            if (req.body.object == "page") {
-                // Si existe multiples entradas entraas
-                req.body.entry.forEach(function(entry) {
-                    // Iterara todos lo eventos capturados
-                    entry.messaging.forEach(function(event) {
-                        if (event.message) {
-                            process_event(event);
-                        }
-                    });
-                });
-                res.send(200,{});
-            }
-        }
-    }
+    // {
+    //     path:'/webhook',
+    //     method:'POST',
+    //     controller: function(req,res,utils){
+            
+    //     }
+    // }
 ];
 
 routes.map(e => server.addRoute(e));
 
 server.listen((process.env.PORT || 5000), () => console.log('El servidor webhook esta escchando!'))
 
+function validFacebook(req,res,tkn,callback){
+    if(req.queryParams['hub.verify_token'] === tkn){
+        console.log(req.queryParams);
+        console.log(req.queryParams['hub.verify_token'],tkn,req.queryParams['hub.challenge']);
+        res.writeHead(200,{'Content-Type': 'application/html;charset=utf-8'});
+        res.write(req.queryParams['hub.challenge']);
+    } else {
+        res.send(502,'tu no deberias estas acá');
+    }
+}
 
 
 // Funcion donde se procesara el evento
